@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option csharp_namespace = "gRPC.Autor.Serve";
+
+package Imagen;
+
+service AutorImg {
+	rpc GuardarImg (ImgRequest) returns (Respuesta);
+}
+
+message ImgRequest {
+   int32 id = 1;
+   string img = 2;
+}
+
+message Respuesta {
+    string mensaje = 1;
+}
