@@ -48,6 +48,61 @@ namespace gRPC.Autor.Serve.Services
 
 
 
+        public override async Task<ImgResponse> ConsultaCompleta(Empty request, ServerCallContext context) 
+        {
+            var datos = new ImgResponse();
+            try
+            {
+                var imagenes = await _imagenesCollection.Find(new BsonDocument()).ToListAsync();
+
+                foreach (var imagen in imagenes) 
+                {
+                    datos.Imagenes.Add(new ImgRequest
+                    {
+                        Id = imagen["id"].AsInt32,
+                        Img = imagen["img"].AsString
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new RpcException(new Status(StatusCode.Unknown, "Ocurrio un error"), ex.Message);
+            }
+            return datos;
+        }
+
+
+
+
+
+
+
+        public override async Task<ImgRequest> ConsultaFiltro(IdImg request, ServerCallContext context)
+        {
+            try 
+            {
+                var filtro = Builders<BsonDocument>.Filter.Eq("id", request.Id);
+                var imagen = await _imagenesCollection.Find(filtro).FirstOrDefaultAsync();
+
+                if (imagen == null)
+                {
+                    throw new RpcException(new Status(StatusCode.NotFound, "Imagen no encontrada"));
+                }
+
+                return new ImgRequest
+                {
+                  Id = imagen["id"].AsInt32,
+                  Img = imagen["img"].AsString
+                };
+            }
+            catch (Exception ex) 
+            {
+                throw new RpcException(new Status(StatusCode.Unknown, "Ocurrio un error:"), ex.Message);
+            }
+        }
+
+
+
 
     }
 }
